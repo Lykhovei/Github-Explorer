@@ -17,22 +17,12 @@ function UserRepos({ reposList, formatDate }) {
     oneRepo.name.includes(foundRepo)
   );
 
-  // const arrayOfDates = reposList.map((date) => date.created_at);
-  // const sortedToNewestDates = [...arrayOfDates].sort(
-  //   (a, b) => new Date(a) - new Date(b)
-  // );
-  // const sortedToOldestDates = [...arrayOfDates].sort(
-  //   (a, b) => new Date(b) - new Date(a)
-  // );
-  // console.log(sortedToNewestDates);
-  // console.log(sortedToOldestDates);
-
   const AllProfileRepos = () => {
     return (
       reposList?.name !== "Error" &&
       reposList?.map((repo) => (
         <>
-          <a target="_blank" href={repo?.html_url}>
+          <a target="_blank" rel="noreferrer" href={repo?.html_url}>
             <StyledRepoItem key={repo.id}>
               <StyledButton style={{ border: "0px" }}>
                 {repo?.name}
@@ -64,7 +54,7 @@ function UserRepos({ reposList, formatDate }) {
       foundNeededRepo?.name !== "Error" &&
       foundNeededRepo?.map((repo) => (
         <>
-          <a target="_blank" href={repo?.html_url}>
+          <a target="_blank" rel="noreferrer" href={repo?.html_url}>
             <StyledRepoItem key={repo.id}>
               <StyledButton style={{ border: "0px" }}>
                 {repo?.name}

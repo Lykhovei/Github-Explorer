@@ -1,12 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import GITHUB_TOKEN from "../../token";
-
-const config = {
-  headers: {
-    Authorization: `Token ${GITHUB_TOKEN}`,
-  },
-};
 
 //action for repos
 export const fetchReposAction = createAsyncThunk(
@@ -14,8 +7,7 @@ export const fetchReposAction = createAsyncThunk(
   async (selectedUser, { rejectWithValue, getState, dispatch }) => {
     try {
       const { data } = await axios.get(
-        `https://api.github.com/users/${selectedUser}/repos?per_page=300&sort=asc`,
-        config
+        `https://api.github.com/users/${selectedUser}/repos?per_page=300&sort=asc`
       );
       return data;
     } catch (error) {
@@ -33,8 +25,7 @@ export const fetchProfileAction = createAsyncThunk(
   async (selectedUser, { rejectWithValue, getState, dispatch }) => {
     try {
       const { data } = await axios.get(
-        `https://api.github.com/users/${selectedUser}`,
-        config
+        `https://api.github.com/users/${selectedUser}`
       );
       return data;
     } catch (error) {
@@ -52,8 +43,7 @@ export const fetchProfilesAction = createAsyncThunk(
   async (searchUser, { rejectWithValue, getState, dispatch }) => {
     try {
       const { data } = await axios.get(
-        `https://api.github.com/search/users?q=${searchUser}`,
-        config
+        `https://api.github.com/search/users?q=${searchUser}`
       );
       return data.items;
     } catch (error) {

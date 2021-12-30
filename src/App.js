@@ -16,7 +16,7 @@ function App() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchUser, setSearchUser] = useState("");
   const theRepos = useSelector((state) => state?.repos);
-  const { loading, reposList, profile, error, langlist } = theRepos;
+  const { loading, reposList, profile, error } = theRepos;
   const dispatch = useDispatch();
 
   useEffect(() => {

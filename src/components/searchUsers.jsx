@@ -20,7 +20,7 @@ const SearchUsers = ({
 
   useEffect(() => {
     dispatch(fetchProfilesAction(searchUser));
-  }, [searchUser]);
+  }, [searchUser, dispatch]);
 
   return (
     <>
