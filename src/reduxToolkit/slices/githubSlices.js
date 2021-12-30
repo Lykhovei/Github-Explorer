@@ -1,36 +1,66 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import GITHUB_TOKEN from "../../token";
+
+const config = {
+  headers: {
+    Authorization: `Token ${GITHUB_TOKEN}`,
+  },
+};
 
 //action for repos
 export const fetchReposAction = createAsyncThunk(
   "repos/list",
-  async (user, { rejectWithValue, getState, dispatch }) => {
+  async (selectedUser, { rejectWithValue, getState, dispatch }) => {
     try {
       const { data } = await axios.get(
-        `https://api.github.com/users/${user}/repos?per_page=30&sort=asc`
+        `https://api.github.com/users/${selectedUser}/repos?per_page=300&sort=asc`,
+        config
       );
       return data;
     } catch (error) {
       if (!error?.response) {
         throw error;
       }
-      return rejectWithValue(error?.response);
+      return rejectWithValue(error?.response.data);
     }
   }
 );
 
-//action for user
-export const fetchUserAction = createAsyncThunk(
-  "user/list",
-  async (user, { rejectWithValue, getState, dispatch }) => {
+//action for user profile
+export const fetchProfileAction = createAsyncThunk(
+  "profile/list",
+  async (selectedUser, { rejectWithValue, getState, dispatch }) => {
     try {
-      const { data } = await axios.get(`https://api.github.com/users/${user}`);
+      const { data } = await axios.get(
+        `https://api.github.com/users/${selectedUser}`,
+        config
+      );
       return data;
     } catch (error) {
       if (!error?.response) {
         throw error;
       }
-      return rejectWithValue(error?.response);
+      return rejectWithValue(error?.response.data);
+    }
+  }
+);
+
+//action for  profiles list
+export const fetchProfilesAction = createAsyncThunk(
+  "profiles/list",
+  async (searchUser, { rejectWithValue, getState, dispatch }) => {
+    try {
+      const { data } = await axios.get(
+        `https://api.github.com/search/users?q=${searchUser}`,
+        config
+      );
+      return data.items;
+    } catch (error) {
+      if (!error?.response) {
+        throw error;
+      }
+      return rejectWithValue(error?.response.data);
     }
   }
 );
@@ -38,9 +68,9 @@ export const fetchUserAction = createAsyncThunk(
 //slices
 const repposSlices = createSlice({
   name: "repos",
-  initialState: { user: "Litava" },
+  initialState: {},
   extraReducers: (builder) => {
-    //repos rduces
+    //repos builders
     builder.addCase(fetchReposAction.pending, (state, action) => {
       state.loading = true;
     });
@@ -54,18 +84,35 @@ const repposSlices = createSlice({
       state.reposList = undefined;
       state.error = action?.payload;
     });
-    //user profile
-    builder.addCase(fetchUserAction.pending, (state, action) => {
+
+    // many profiles builders
+    builder.addCase(fetchProfilesAction.pending, (state, action) => {
       state.loading = true;
     });
-    builder.addCase(fetchUserAction.fulfilled, (state, action) => {
+    builder.addCase(fetchProfilesAction.fulfilled, (state, action) => {
       state.loading = false;
-      state.user = action?.payload;
+      state.profiles = action?.payload;
       state.error = undefined;
     });
-    builder.addCase(fetchUserAction.rejected, (state, action) => {
+    builder.addCase(fetchProfilesAction.rejected, (state, action) => {
       state.loading = false;
-      state.user = undefined;
+      state.profiles = undefined;
+      state.error = action?.payload;
+    });
+
+    // profile builders
+    builder.addCase(fetchProfileAction.pending, (state, action) => {
+      state.loading = true;
+      state.profile = undefined;
+    });
+    builder.addCase(fetchProfileAction.fulfilled, (state, action) => {
+      state.loading = false;
+      state.profile = action?.payload;
+      state.error = undefined;
+    });
+    builder.addCase(fetchProfileAction.rejected, (state, action) => {
+      state.loading = false;
+      state.profile = undefined;
       state.error = action?.payload;
     });
   },

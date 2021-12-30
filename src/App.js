@@ -1,77 +1,79 @@
 import "./App.css";
-import Search from "./components/search";
-import UserCard from "./components/UserCard";
-import Repos from "../src/components/repos";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import ScreenSearchDesktopIcon from "@mui/icons-material/ScreenSearchDesktop";
+
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchReposAction,
-  fetchUserAction,
+  fetchProfileAction,
 } from "../src/reduxToolkit/slices/githubSlices";
+import courses from "../src/assets/courses.jpg";
+import SearchUsers from "./components/searchUsers";
+import UserProfile from "./components/profile";
+import UserRepos from "./components/repos";
 
 function App() {
-  //dispatch
+  const [open, setOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [searchUser, setSearchUser] = useState("");
+  const theRepos = useSelector((state) => state?.repos);
+  const { loading, reposList, profile, error, langlist } = theRepos;
   const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   dispatch(fetchReposAction("Litava"));
-  // }, [dispatch]);
-
-  const [name, setName] = useState("");
-  const [userName, setUserName] = useState("");
-  const [repos, setRepos] = useState("");
-  const [avatar, setAvatar] = useState("");
-  const [error, setError] = useState(null);
-  const [open, setOpen] = useState(false);
-
   useEffect(() => {
-    fetch("https://api.github.com/users/example")
-      .then((res) => res.json())
-      .then((data) => {
-        setData(data);
-      });
-  }, []);
+    dispatch(fetchReposAction(selectedUser));
+    dispatch(fetchProfileAction(selectedUser));
+  }, [selectedUser, dispatch]);
 
-  const setData = ({ name, login, public_repos, avatar_url }) => {
-    setName(name);
-    setUserName(login);
-    setRepos(public_repos);
-    setAvatar(avatar_url);
-  };
+  function formatDate(dateStr) {
+    const date = new Date(Date.parse(dateStr));
+    const formattedDate = `${date.getDate()}-${
+      date.getMonth() + 1
+    }-${date.getFullYear()}`;
+
+    return formattedDate;
+  }
 
   return (
-    <>
-      <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
-          <Toolbar>
-            <ScreenSearchDesktopIcon style={{ marginRight: "15px" }} />
-            <Typography variant="h6" color="inherit" component="div">
-              Github users search
-            </Typography>
-          </Toolbar>
-        </AppBar>
-      </Box>
-      <div className="App">
-        <Search setData={setData} setError={setError} />
-        <UserCard
-          handleOpen={() => setOpen(!open)}
-          open={open}
-          name={name}
-          userName={userName}
-          repos={repos}
-          avatar={avatar}
-          error={error}
+    <div className="App">
+      {selectedUser ? (
+        ""
+      ) : (
+        <div>
+          <img className="pic" src={courses} alt="" />
+          <h1 className="header">GitHub user Finder</h1>
+        </div>
+      )}
+
+      <div>
+        <SearchUsers
+          searchUser={searchUser}
+          setSearchUser={setSearchUser}
+          selectedUser={selectedUser}
+          setSelectedUser={setSelectedUser}
         />
+        {loading ? (
+          <h1>Loading</h1>
+        ) : error ? (
+          <h1>Start searching the user</h1>
+        ) : selectedUser ? (
+          <div className="profile">
+            <UserProfile
+              profile={profile}
+              open={open}
+              setOpen={setOpen}
+              formatDate={formatDate}
+            />
+            {open ? (
+              <UserRepos reposList={reposList} formatDate={formatDate} />
+            ) : (
+              ""
+            )}
+          </div>
+        ) : (
+          ""
+        )}
       </div>
-      <div style={{ padding: "30px" }}>
-        <Repos />
-      </div>
-    </>
+    </div>
   );
 }
 
